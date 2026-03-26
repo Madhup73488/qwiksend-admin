@@ -33,54 +33,101 @@ export default function LoginPage() {
 
     return (
         <div style={{
-            minHeight: '100vh', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', background: '#0a0d14', padding: 20,
+            minHeight: '100vh',
+            display: 'flex',
+            background: '#0c0c0e',
         }}>
+            {/* Left panel — branding */}
             <div style={{
-                width: '100%', maxWidth: 400,
-                background: '#0f1320', border: '1px solid #252d42',
-                borderRadius: 14, padding: '36px 32px',
+                width: '42%',
+                background: '#111113',
+                borderRight: '1px solid #222226',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '40px 48px',
             }}>
-                <div style={{ textAlign: 'center', marginBottom: 30 }}>
-                    <div style={{ fontSize: 30, fontWeight: 800, color: '#7c3aed', letterSpacing: -1 }}>QwikSend</div>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: '#e2e8f0', marginTop: 4 }}>Admin Panel</div>
-                    <div style={{ fontSize: 13, color: '#4a5980', marginTop: 6 }}>Sign in to manage licenses & admins</div>
+                {/* Logo */}
+                <img 
+                    src="/logo.svg" 
+                    alt="QwikSend" 
+                    style={{ height: 45, width: 'auto', objectFit: 'contain', marginBottom: 40 }}
+                />
+
+                {/* Center text */}
+                <div style={{ textAlign: 'center', maxWidth: 340 }}>
+                    <div style={{
+                        fontSize: 26, fontWeight: 700, color: '#ededed',
+                        lineHeight: 1.3, letterSpacing: '-0.03em', marginBottom: 14,
+                    }}>
+                        License management<br />
+                        <span style={{ color: '#10b981' }}>built for speed.</span>
+                    </div>
+                    <p style={{ fontSize: 14, color: '#52525b', lineHeight: 1.7 }}>
+                        Issue, track and revoke WhatsApp software licenses — all in one place.
+                    </p>
                 </div>
 
-                <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
-                    <div className="form-group">
-                        <label className="form-label">Username</label>
-                        <input
-                            className="form-input"
-                            value={form.username}
-                            onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
-                            placeholder="Enter username"
-                            autoFocus required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Password</label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            value={form.password}
-                            onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                            placeholder="Enter password"
-                            required
-                        />
+                {/* Footer */}
+                <div style={{ fontSize: 12, color: '#3f3f46', marginTop: 'auto', paddingTop: 40 }}>
+                    © {new Date().getFullYear()} QwikSend. All rights reserved.
+                </div>
+            </div>
+
+            {/* Right panel — form */}
+            <div style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '40px 32px',
+            }}>
+                <div style={{ width: '100%', maxWidth: 360 }}>
+                    <div style={{ marginBottom: 32 }}>
+                        <div style={{ fontSize: 22, fontWeight: 700, color: '#ededed', letterSpacing: '-0.02em' }}>
+                            Sign in
+                        </div>
+                        <div style={{ fontSize: 13.5, color: '#71717a', marginTop: 6 }}>
+                            Enter your credentials to continue
+                        </div>
                     </div>
 
-                    {error && <div className="form-error">{error}</div>}
+                    <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        <div className="form-group">
+                            <label className="form-label">Username</label>
+                            <input
+                                className="form-input"
+                                value={form.username}
+                                onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
+                                placeholder="your username"
+                                autoFocus required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Password</label>
+                            <input
+                                type="password"
+                                className="form-input"
+                                value={form.password}
+                                onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                                placeholder="••••••••"
+                                required
+                            />
+                        </div>
 
-                    <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={loading}
-                        style={{ marginTop: 4, padding: '11px', fontSize: 14 }}
-                    >
-                        {loading ? 'Signing in…' : 'Sign In'}
-                    </button>
-                </form>
+                        {error && <div className="form-error">{error}</div>}
+
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={loading}
+                            style={{ marginTop: 6, padding: '10px', fontSize: 13.5 }}
+                        >
+                            {loading ? 'Signing in…' : 'Sign in'}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

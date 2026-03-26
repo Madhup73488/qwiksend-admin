@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { apiFetch } from '@/lib/apiFetch';
+import { StatsGridSkeleton, TableSkeleton } from '@/components/Skeleton';
 
 function fmtMoney(n) {
     return '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
@@ -248,7 +249,7 @@ export default function ExpensesPage() {
                     )}
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, gap: 10 }}>
-                        <div style={{ fontWeight: 700, color: '#e2e8f0', fontSize: 13 }}>Expense History</div>
+                        <div className="section-title" style={{ margin: 0 }}>Expense History</div>
                         {isSuper && (
                             <select
                                 className="form-select"
@@ -265,11 +266,24 @@ export default function ExpensesPage() {
                     </div>
 
                     {loading ? (
-                        <div className="empty">Loading expenses…</div>
-                    ) : filtered.length === 0 ? (
-                        <div className="empty">No expenses recorded yet.</div>
-                    ) : (
                         <div className="table-wrap">
+                            <table>
+                                <thead><tr>
+                                    {['#','Title','Category','Where Used','Amount','Date','Notes'].map(h => <th key={h}>{h}</th>)}
+                                </tr></thead>
+                                <tbody><TableSkeleton rows={7} cols={7} widths={['20px','55%','40%','45%','35%','40%','50%']} /></tbody>
+                            </table>
+                        </div>
+                    ) : filtered.length === 0 ? (
+                        <div className="empty-state">
+                            <div className="empty-state-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                            </div>
+                            <div className="empty-state-title">No expenses recorded yet</div>
+                            <div className="empty-state-sub">Add your first expense using the button above</div>
+                        </div>
+                    ) : (
+                        <div className="table-wrap fade-up">
                             <table>
                                 <thead>
                                     <tr>
@@ -286,14 +300,14 @@ export default function ExpensesPage() {
                                 <tbody>
                                     {filtered.map((e, i) => (
                                         <tr key={e.id}>
-                                            <td style={{ color: '#3a4560', fontSize: 12 }}>{i + 1}</td>
+                                            <td style={{ color: 'var(--text-3)', fontSize: 12 }}>{i + 1}</td>
                                             <td><span className="bold">{e.title}</span></td>
-                                            <td>{e.category || '—'}</td>
-                                            <td>{e.location || '—'}</td>
-                                            <td style={{ color: '#ef4444', fontWeight: 700 }}>{fmtMoney(e.amount)}</td>
-                                            {isSuper && <td>{e.spentByName}</td>}
-                                            <td>{fmtDate(e.spentAt)}</td>
-                                            <td>{e.notes || '—'}</td>
+                                            <td style={{ color: 'var(--text-2)' }}>{e.category || '—'}</td>
+                                            <td style={{ color: 'var(--text-2)' }}>{e.location || '—'}</td>
+                                            <td style={{ color: '#ef4444', fontWeight: 600 }}>{fmtMoney(e.amount)}</td>
+                                            {isSuper && <td style={{ color: 'var(--text-3)' }}>{e.spentByName}</td>}
+                                            <td style={{ color: 'var(--text-3)' }}>{fmtDate(e.spentAt)}</td>
+                                            <td style={{ color: 'var(--text-3)' }}>{e.notes || '—'}</td>
                                         </tr>
                                     ))}
                                 </tbody>

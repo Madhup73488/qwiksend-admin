@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import { apiFetch } from '@/lib/apiFetch';
+import { TableSkeleton } from '@/components/Skeleton';
 
 const DEFAULT_FORM = { username: '', password: '', role: 'admin' };
 
@@ -162,24 +163,32 @@ export default function AdminsPage() {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan={7} className="empty">Loading…</td></tr>
+                                    <TableSkeleton rows={4} cols={7} widths={['40%','30%','40%','45%','25%','30%','70%']} />
                                 ) : admins.length === 0 ? (
-                                    <tr><td colSpan={7} className="empty">No admins yet</td></tr>
+                                    <tr><td colSpan={7}>
+                                        <div className="empty-state">
+                                            <div className="empty-state-icon">
+                                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                                            </div>
+                                            <div className="empty-state-title">No admins yet</div>
+                                            <div className="empty-state-sub">Create an admin account to get started</div>
+                                        </div>
+                                    </td></tr>
                                 ) : admins.map(a => (
                                     <tr key={a.id}>
                                         <td>
                                             <span className="bold">{a.username}</span>
-                                            {a.id === user?.id && <span style={{ marginLeft: 6, fontSize: 10, color: '#4a5980' }}>(you)</span>}
+                                            {a.id === user?.id && <span style={{ marginLeft: 6, fontSize: 10, color: 'var(--text-3)' }}>(you)</span>}
                                         </td>
                                         <td>
                                             <span className={`badge ${a.role === 'super' ? 'badge-super' : 'badge-admin'}`}>
                                                 {a.role}
                                             </span>
                                         </td>
-                                        <td>{a.createdByName || <span style={{ color: '#3a4560' }}>system</span>}</td>
+                                        <td>{a.createdByName || <span style={{ color: 'var(--text-3)' }}>system</span>}</td>
                                         <td>{fmtDate(a.createdAt)}</td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <span style={{ fontWeight: 700, color: '#e2e8f0' }}>{a.licenseCount ?? 0}</span>
+                                            <span style={{ fontWeight: 600, color: 'var(--text)' }}>{a.licenseCount ?? 0}</span>
                                         </td>
                                         <td>
                                             <span className={`badge ${a.active ? 'badge-active' : 'badge-revoked'}`}>
@@ -226,8 +235,8 @@ export default function AdminsPage() {
                         <div className="modal-header">
                             <div>
                                 <span className="modal-title">Licenses issued by </span>
-                                <span className="modal-title" style={{ color: '#7c3aed' }}>{viewAdmin.username}</span>
-                                <span style={{ marginLeft: 8, fontSize: 11, color: '#4a5980' }}>({viewAdmin.role})</span>
+                                <span className="modal-title" style={{ color: 'var(--accent)' }}>{viewAdmin.username}</span>
+                                <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--text-3)' }}>({viewAdmin.role})</span>
                             </div>
                             <button className="modal-close" onClick={() => setViewAdmin(null)}>×</button>
                         </div>
@@ -238,25 +247,29 @@ export default function AdminsPage() {
                             const expiredC  = adminLics.filter(l => !l.revoked && !l.isLifetime && getDaysLeft(l) < 0).length;
                             const todayC    = adminLics.filter(l => (l.issuedAt || 0) >= todayStart).length;
                             return (
-                                <div style={{ display: 'flex', borderBottom: '1px solid #1e2640' }}>
-                                    {[
-                                        { label: 'Total',        value: adminLics.length, color: '#e2e8f0' },
-                                        { label: 'Active',       value: activeC,          color: '#22c55e' },
-                                        { label: 'Revoked',      value: revokedC,         color: '#ef4444' },
-                                        { label: 'Expired',      value: expiredC,         color: '#64748b' },
-                                        { label: 'Issued Today', value: todayC,           color: '#f59e0b' },
-                                    ].map(s => (
-                                        <div key={s.label} style={{ flex: 1, padding: '10px 0', borderRight: '1px solid #1e2640', textAlign: 'center' }}>
-                                            <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
-                                            <div style={{ fontSize: 10, color: '#4a5980', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.5px' }}>{s.label}</div>
-                                        </div>
-                                    ))}
+                                <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
+                                                    {[
+                                                        { label: 'Total',        value: adminLics.length, color: 'var(--text)' },
+                                                        { label: 'Active',       value: activeC,          color: '#10b981' },
+                                                        { label: 'Revoked',      value: revokedC,         color: '#ef4444' },
+                                                        { label: 'Expired',      value: expiredC,         color: 'var(--text-3)' },
+                                                        { label: 'Issued Today', value: todayC,           color: '#f59e0b' },
+                                                    ].map(s => (
+                                                        <div key={s.label} style={{ flex: 1, padding: '10px 0', borderRight: '1px solid var(--border)', textAlign: 'center' }}>
+                                                            <div style={{ fontSize: 20, fontWeight: 700, color: s.color, letterSpacing: '-0.02em' }}>{s.value}</div>
+                                                            <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em' }}>{s.label}</div>
+                                                        </div>
+                                                    ))}
                                 </div>
                             );
                         })()}
                         <div className="modal-body" style={{ padding: 0, maxHeight: '70vh', overflowY: 'auto' }}>
                             {licsLoading ? (
-                                <div style={{ padding: '32px', textAlign: 'center', color: '#3a4560' }}>Loading…</div>
+                                <div style={{ padding: '16px' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <tbody><TableSkeleton rows={5} cols={7} widths={['40%','30%','25%','40%','45%','35%','60%']} /></tbody>
+                                    </table>
+                                </div>
                             ) : adminLics.length === 0 ? (
                                 <div style={{ padding: '32px', textAlign: 'center', color: '#3a4560' }}>No licenses issued by this admin yet.</div>
                             ) : (

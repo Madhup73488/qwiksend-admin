@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { apiFetch } from '@/lib/apiFetch';
+import { StatsGridSkeleton, TableSkeleton } from '@/components/Skeleton';
 
 const PERIODS = [
     { key: 'today',  label: 'Today'      },
@@ -105,7 +106,17 @@ export default function SalesPage() {
 
                 <div className="page-body">
                     {loading ? (
-                        <div className="empty">Loading…</div>
+                        <>
+                            <StatsGridSkeleton count={4} />
+                            <div className="table-wrap" style={{ marginTop: 16 }}>
+                                <table>
+                                    <thead><tr>
+                                        {['#','Client','Plan','Price','Date','Status'].map(h => <th key={h}>{h}</th>)}
+                                    </tr></thead>
+                                    <tbody><TableSkeleton rows={7} cols={6} widths={['20px','55%','40%','40%','45%','35%']} /></tbody>
+                                </table>
+                            </div>
+                        </>
                     ) : (
                         <>
                             {/* Summary stat cards */}
@@ -113,16 +124,16 @@ export default function SalesPage() {
                                 {periodStats.map((ps, i) => (
                                     <div
                                         key={ps.label}
-                                        className="stat-card"
+                                        className="stat-card fade-up"
                                         style={{
                                             cursor: 'pointer',
-                                            borderColor: period === PERIODS[i].key ? '#7c3aed' : '#1e2640',
-                                            background:  period === PERIODS[i].key ? 'rgba(124,58,237,.08)' : '#0f1320',
+                                            borderColor: period === PERIODS[i].key ? 'var(--accent)' : 'var(--border)',
+                                            background:  period === PERIODS[i].key ? 'rgba(16,185,129,.06)' : 'var(--surface)',
                                         }}
                                         onClick={() => setPeriod(PERIODS[i].key)}
                                     >
                                         <div className="stat-label">{ps.label}</div>
-                                        <div className="stat-value" style={{ fontSize: 24, color: period === PERIODS[i].key ? '#a78bfa' : '#e2e8f0' }}>
+                                        <div className="stat-value" style={{ fontSize: 22, color: period === PERIODS[i].key ? 'var(--accent)' : 'var(--text)' }}>
                                             {fmt(ps.revenue)}
                                         </div>
                                         <div className="stat-sub">{ps.count} sale{ps.count !== 1 ? 's' : ''}</div>
@@ -156,36 +167,34 @@ export default function SalesPage() {
                                         ))}
                                     </select>
                                 )}
-                                <span style={{ marginLeft: 'auto', color: '#4a5980', fontSize: 13 }}>
+                                <span style={{ marginLeft: 'auto', color: 'var(--text-3)', fontSize: 13 }}>
                                     {totalCount} sale{totalCount !== 1 ? 's' : ''} &nbsp;·&nbsp;
-                                    <span style={{ color: '#22c55e', fontWeight: 700 }}>{fmt(totalRevenue)}</span>
+                                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{fmt(totalRevenue)}</span>
                                 </span>
                             </div>
 
                             {/* Per-admin breakdown (super only) */}
                             {isSuper && adminBreakdown.length > 1 && adminFilter === 'all' && (
-                                <div className="card" style={{ marginBottom: 20 }}>
-                                    <div style={{ fontWeight: 700, color: '#e2e8f0', marginBottom: 12, fontSize: 13 }}>
-                                        Admin Breakdown
-                                    </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                                <div className="card fade-up" style={{ marginBottom: 20 }}>
+                                    <div className="section-title" style={{ marginBottom: 12 }}>Admin Breakdown</div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                                         {adminBreakdown.map(a => (
                                             <div
                                                 key={a.id}
                                                 style={{
-                                                    background: '#161c2d', border: '1px solid #252d42',
-                                                    borderRadius: 10, padding: '12px 18px', minWidth: 160,
-                                                    cursor: 'pointer',
+                                                    background: 'var(--surface-2)', border: '1px solid var(--border-2)',
+                                                    borderRadius: 8, padding: '10px 16px', minWidth: 150,
+                                                    cursor: 'pointer', transition: 'border-color 0.12s',
                                                 }}
                                                 onClick={() => setAdminFilter(a.id)}
                                             >
-                                                <div style={{ fontSize: 12, color: '#4a5980', marginBottom: 4, fontWeight: 600 }}>
+                                                <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 4, fontWeight: 500 }}>
                                                     {a.name}
                                                 </div>
-                                                <div style={{ fontSize: 20, fontWeight: 800, color: '#a78bfa' }}>
+                                                <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--accent)', letterSpacing: '-0.02em' }}>
                                                     {fmt(a.revenue)}
                                                 </div>
-                                                <div style={{ fontSize: 11, color: '#4a5980', marginTop: 2 }}>
+                                                <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>
                                                     {a.count} sale{a.count !== 1 ? 's' : ''}
                                                 </div>
                                             </div>
@@ -196,9 +205,15 @@ export default function SalesPage() {
 
                             {/* Sales table */}
                             {filtered.length === 0 ? (
-                                <div className="empty">No sales recorded for this period.</div>
+                                <div className="empty-state">
+                                    <div className="empty-state-icon">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                                    </div>
+                                    <div className="empty-state-title">No sales for this period</div>
+                                    <div className="empty-state-sub">Try selecting a wider time range</div>
+                                </div>
                             ) : (
-                                <div className="table-wrap">
+                                <div className="table-wrap fade-up">
                                     <table>
                                         <thead>
                                             <tr>
@@ -214,7 +229,7 @@ export default function SalesPage() {
                                         <tbody>
                                             {filtered.map((s, i) => (
                                                 <tr key={s.key}>
-                                                    <td style={{ color: '#3a4560', fontSize: 12 }}>{i + 1}</td>
+                                                    <td style={{ color: 'var(--text-3)', fontSize: 12 }}>{i + 1}</td>
                                                     <td>
                                                         <div className="bold">{s.clientName}</div>
                                                         {s.clientPhone && <div className="dim">{s.clientPhone}</div>}
@@ -223,12 +238,12 @@ export default function SalesPage() {
                                                         <span className={`badge badge-plan-${s.plan}`}>{s.plan}</span>
                                                     </td>
                                                     <td>
-                                                        <span style={{ fontWeight: 700, color: '#22c55e', fontSize: 14 }}>
+                                                        <span style={{ fontWeight: 600, color: 'var(--accent)', fontSize: 13.5 }}>
                                                             {fmt(s.price)}
                                                         </span>
                                                     </td>
                                                     {isSuper && (
-                                                        <td style={{ color: '#94a3b8' }}>{s.issuedByName}</td>
+                                                        <td style={{ color: 'var(--text-3)' }}>{s.issuedByName}</td>
                                                     )}
                                                     <td>{fmtDate(s.issuedAt)}</td>
                                                     <td>

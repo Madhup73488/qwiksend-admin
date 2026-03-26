@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { apiFetch } from '@/lib/apiFetch';
+import { TableSkeleton, Sk } from '@/components/Skeleton';
 
 const PLANS = [
     { value: 'trial',    label: 'Trial (3 days)'      },
@@ -601,16 +602,24 @@ export default function LicensesPage() {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan={10} className="empty">Loading…</td></tr>
+                                    <TableSkeleton rows={8} cols={10} widths={['55%','80%','40%','25%','50%','60%','40%','45%','35%','70%']} />
                                 ) : filtered.length === 0 ? (
-                                    <tr><td colSpan={10} className="empty">No licenses found</td></tr>
+                                    <tr><td colSpan={10}>
+                                        <div className="empty-state">
+                                            <div className="empty-state-icon">
+                                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                            </div>
+                                            <div className="empty-state-title">No licenses found</div>
+                                            <div className="empty-state-sub">Try a different search or generate a new key</div>
+                                        </div>
+                                    </td></tr>
                                 ) : filtered.map(l => {
                                     const days = getDaysLeft(l);
                                     const isExpired = !l.isLifetime && days !== null && days < 0;
                                     return (
                                         <tr key={l.key}>
                                             <td>
-                                                <div className="bold" style={{ cursor: 'pointer', color: '#a78bfa', textDecoration: 'underline', textDecorationStyle: 'dotted' }} onClick={() => setShowDetail(l)}>{l.clientName}</div>
+                                                <div className="bold" style={{ cursor: 'pointer', color: 'var(--accent)', textDecoration: 'underline', textDecorationStyle: 'dotted' }} onClick={() => setShowDetail(l)}>{l.clientName}</div>
                                                 {l.clientPhone && <div className="dim">{l.clientPhone}</div>}
                                             </td>
                                             <td>
@@ -626,7 +635,7 @@ export default function LicensesPage() {
                                             <td style={{ textAlign: 'center' }}>{l.deviceLimit}</td>
                                             <td>
                                                 {l.isLifetime ? (
-                                                    <span style={{ color: '#a78bfa', fontWeight: 600 }}>Lifetime</span>
+                                                    <span style={{ color: '#f87171', fontWeight: 600 }}>Lifetime</span>
                                                 ) : (
                                                     <>
                                                         <div>{fmtDate(l.expiryTs)}</div>
