@@ -2,13 +2,25 @@ import { NextResponse } from 'next/server';
 import { getLicense, saveLicense } from '@/lib/kv';
 import { validateKey } from '@/lib/license';
 
+// CORS headers for desktop app
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS() {
+    return NextResponse.json({}, { headers: corsHeaders });
+}
+
 // PUBLIC endpoint – called by the QwikSend desktop app on startup / activation
 export async function POST(req) {
     try {
         const { key, machineId } = await req.json();
 
         if (!key || !machineId)
-            return NextResponse.json({ valid: false, error: 'key and machineId required' });
+            return NextResponse.json({ valid: false, error: 'key and machineId required' }, { headers: corsHeaders });
 
         const cleanKey = key.trim().toUpperCase();
         const cleanMid = machineId.trim().toUpperCase();
@@ -16,9 +28,9 @@ export async function POST(req) {
         // 1. DB existence + revocation check first
         const license = await getLicense(cleanKey);
         if (!license)
-            return NextResponse.json({ valid: false, error: 'Key not registered' });
+            return NextResponse.json({ valid: false, error: 'Key not registered' }, { headers: corsHeaders });
         if (license.revoked)
-            return NextResponse.json({ valid: false, error: 'Key has been revoked' });
+            return NextResponse.json({ valid: false, error: 'Key has been revoked' }, { headers: corsHeaders });
 
         // 2. Validate using client machineId by default.
         //    If this specific license has super-admin exception enabled,
@@ -38,9 +50,9 @@ export async function POST(req) {
         }
 
         if (!crypto)
-            return NextResponse.json({ valid: false, error: 'Invalid key signature' });
+            return NextResponse.json({ valid: false, error: 'Invalid key signature' }, { headers: corsHeaders });
         if (!crypto.valid)
-            return NextResponse.json({ valid: false, error: 'Key expired' });
+            return NextResponse.json({ valid: false, error: 'Key expired' }, { headers: corsHeaders });
 
         // 3. Record first activation
         const now = Math.floor(Date.now() / 1000);
@@ -71,10 +83,10 @@ export async function POST(req) {
             secondsLeft,
             expiry:      crypto.isLifetime ? null : new Date(crypto.expiryTs * 1000).toISOString(),
             features:    license.features || null,
-        });
+        }, { headers: corsHeaders });
 
     } catch (err) {
         console.error('Validate error:', err);
-        return NextResponse.json({ valid: false, error: 'Server error' });
+        return NextResponse.json({ valid: false, error: 'Server error' }, { headers: corsHeaders });
     }
 }
