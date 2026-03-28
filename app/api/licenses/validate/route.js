@@ -14,6 +14,11 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
+// Normalize machine ID (remove dashes for comparison)
+function normalizeMachineId(mid) {
+    return (mid || '').toString().trim().toUpperCase().replace(/-/g, '');
+}
+
 // PUBLIC endpoint – called by the QwikSend desktop app on startup / activation
 export async function POST(req) {
     try {
@@ -23,7 +28,8 @@ export async function POST(req) {
             return NextResponse.json({ valid: false, error: 'key and machineId required' }, { headers: corsHeaders });
 
         const cleanKey = key.trim().toUpperCase();
-        const cleanMid = machineId.trim().toUpperCase();
+        // Normalize machine ID by removing dashes
+        const cleanMid = normalizeMachineId(machineId);
 
         // 1. DB existence + revocation check first
         const license = await getLicense(cleanKey);
@@ -41,7 +47,7 @@ export async function POST(req) {
         let usedExceptionFallback = false;
         if ((!crypto || !crypto.valid) && license.validationException === true) {
             // Exception mode: validate against stored machine signature and allow re-bind to current machine.
-            const storedMid = (license.machineId || '').trim().toUpperCase();
+            const storedMid = normalizeMachineId(license.machineId);
             const fallbackCrypto = validateKey(cleanKey, storedMid);
             if (fallbackCrypto?.valid) {
                 crypto = fallbackCrypto;
